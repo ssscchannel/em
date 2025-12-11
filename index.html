@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>晟自然輔助系統　電流磁效應造成磁針偏轉</title>
+    <style>
+        :root {
+            --wire-red: #e74c3c;
+            --wire-dark: #444; /* 黑色導線的基底色 */
+            --bg-color: #f4f6f9;
+            --panel-color: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+			background-image: url('page.jpg'); /* 這裡換成你的背景圖檔名 */
+			background-size: cover;          /* 讓圖片充滿整個畫面 */
+			background-position: center;     /* 圖片置中 */
+			background-repeat: no-repeat;    /* 不要重複排列 */
+			background-attachment: fixed;    /* 捲動時背景固定不動 */
+            background-color: rgba(255, 255, 255, 0.8);
+            display: flex; flex-direction: column; align-items: center;
+            margin: 0; padding: 20px; color: #333;
+			min-height: 100vh;
+        }
+		
+		/* Logo 的樣式設定 */
+		.header-container {
+            display: flex;             /* 彈性排版模式 */
+            align-items: center;       /* 垂直置中對齊 */
+            justify-content: center;   /* 水平置中對齊 */
+            gap: 15px;                 /* 圖片跟文字中間的距離 */
+            margin-top: 20px;          /* 距離頂部的距離 */
+        }
+
+        /* LOGO 的設定 */
+        .title-logo {
+            height: 60px;              /* 設定高度，讓它不要太大 */
+            width: auto;               /* 寬度自動調整，保持比例 */
+			filter: drop-shadow(2px 2px 2px rgba(0,0,0,0.2)); /* 加一點陰影更有質感 */
+            /* 如果你的 LOGO 有白底，可以加這行讓它變圓角 (選用) */
+            /* border-radius: 10px; */ 
+        }
+
+        /* 調整 H2 標題，把原本的邊距拿掉，讓對齊更準 */
+        h2 {
+            margin: 0;                 /* 歸零，由容器控制距離 */
+            color: #2c3e50;
+            text-shadow: 1px 1px 2px white;
+            line-height: 1;            /* 讓行高緊湊一點 */
+			font-size: 2rem;
+        }
+
+        /* 手機版微調：如果螢幕真的很小，LOGO稍微縮小 */
+        @media (max-width: 600px) {
+            .title-logo { height: 40px; }
+            h2 { font-size: 1.5rem; }
+			.header-container { gap: 10px; }
+        }
+
+        h2 { margin-bottom: 5px; color: #2c3e50; }
+        .subtitle { font-size: 0.9em; color: #7f8c8d; margin-bottom: 30px; }
+
+        /* --- 關鍵動畫定義 --- */
+        /* 上下流動 */
+        @keyframes flowDown { from { background-position: 0 0; } to { background-position: 0 40px; } }
+        @keyframes flowUp { from { background-position: 0 0; } to { background-position: 0 -40px; } }
+        /* 左右流動 (新增) */
+        @keyframes flowRight { from { background-position: 0 0; } to { background-position: 40px 0; } }
+        @keyframes flowLeft { from { background-position: 0 0; } to { background-position: -40px 0; } }
+
+        /* 增強版箭頭呼吸動畫 (加入發光與更大幅度的縮放) */
+        @keyframes pulseArrowStrong {
+            0% { transform: translateY(-50%) scale(1); opacity: 1; filter: drop-shadow(0 0 0px rgba(243, 156, 18, 0)); }
+            50% { transform: translateY(-50%) scale(1.4); opacity: 0.7; filter: drop-shadow(0 0 15px rgba(243, 156, 18, 0.9)); } /* 變大且發光 */
+            100% { transform: translateY(-50%) scale(1); opacity: 1; filter: drop-shadow(0 0 0px rgba(243, 156, 18, 0)); }
+        }
+
+        .simulation-container {
+            position: relative; width: 400px; height: 400px;
+            background: var(--panel-color); border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            display: flex; justify-content: center; align-items: center; overflow: visible;
+        }
+
+        .circuit-frame {
+            position: relative; width: 180px; height: 280px;
+            /* 移除原本的 border 設定 */
+            /* border: 6px solid #444; border-radius: 15px; border-left: none; */
+            box-sizing: border-box;
+        }
+
+        /* --- 導線共用設定 (核心) --- */
+        .common-wire {
+            position: absolute;
+            border-radius: 4px;
+            box-shadow: 1px 1px 3px rgba(0,0,0,0.4);
+            /* 共用的流動紋理層 (最上層) */
+            background-image: linear-gradient(
+                -45deg,
+                rgba(255,255,255,0.25) 25%, transparent 25%,
+                transparent 50%, rgba(255,255,255,0.25) 50%,
+                rgba(255,255,255,0.25) 75%, transparent 75%, transparent
+            );
+            background-size: 20px 20px, 100% 100%; /* 紋理大小, 底層漸層大小 */
+            transition: all 0.3s ease;
+        }
+
+        /* 紅色導線特定樣式 (左側) */
+        .active-wire {
+            left: -3px; top: -6px; bottom: -6px; width: 8px;
+            /* 疊加紅色 3D 漸層在紋理層之下 */
+            background-image: linear-gradient(-45deg, rgba(255,255,255,0.25) 25%, transparent 25%, transparent 50%, rgba(255,255,255,0.25) 50%, rgba(255,255,255,0.25) 75%, transparent 75%, transparent),
+                              linear-gradient(90deg, #a93226, var(--wire-red) 40%, #ec7063 60%, #a93226);
+        }
+
+        /* 黑色導線特定樣式 */
+        .wire-black {
+            /* 疊加黑色/深灰色 3D 漸層 */
+            background-image: linear-gradient(-45deg, rgba(255,255,255,0.25) 25%, transparent 25%, transparent 50%, rgba(255,255,255,0.25) 50%, rgba(255,255,255,0.25) 75%, transparent 75%, transparent),
+                              linear-gradient(90deg, #2c3e50, #5d6d7e 40%, #85929e 60%, #2c3e50);
+            z-index: 1; /* 比電池低 */
+        }
+
+        /* 定位三條黑線 */
+        .wire-top { top: -6px; left: -3px; right: -3px; height: 8px; background-image: linear-gradient(-45deg, rgba(255,255,255,0.25) 25%, transparent 25%, transparent 50%, rgba(255,255,255,0.25) 50%, rgba(255,255,255,0.25) 75%, transparent 75%, transparent), linear-gradient(0deg, #2c3e50, #5d6d7e 40%, #85929e 60%, #2c3e50); }
+        .wire-right { right: -3px; top: -6px; bottom: -6px; width: 8px; }
+        .wire-bottom { bottom: -6px; left: -3px; right: -3px; height: 8px; background-image: linear-gradient(-45deg, rgba(255,255,255,0.25) 25%, transparent 25%, transparent 50%, rgba(255,255,255,0.25) 50%, rgba(255,255,255,0.25) 75%, transparent 75%, transparent), linear-gradient(0deg, #2c3e50, #5d6d7e 40%, #85929e 60%, #2c3e50);}
+
+
+        /* 動畫 Class 用 */
+        .flowing-down  { animation: flowDown 1s linear infinite; }
+        .flowing-up    { animation: flowUp 1s linear infinite; }
+        .flowing-right { animation: flowRight 1s linear infinite; }
+        .flowing-left  { animation: flowLeft 1s linear infinite; }
+
+        /* 電流箭頭 (左側) - 套用增強版動畫 */
+        .current-arrow {
+            position: absolute; left: 15px; top: 50%;
+            /* transform 在動畫裡定義了 */
+            font-size: 32px; color: #f39c12; font-weight: bold; text-shadow: 1px 1px 0 #fff;
+            z-index: 50; pointer-events: none;
+            /* 使用新的強力動畫，速度稍微加快 */
+            animation: pulseArrowStrong 1.2s ease-in-out infinite;
+        }
+
+        /* ... (以下的指北針、電池、控制面板 CSS 保持原本的樣式，為了節省篇幅這裡省略，請保留你原本的代碼) ... */
+        /* --- 請保留原本的 .compass, .needle, .battery-container 等相關樣式 --- */
+        .compass { width: 130px; height: 130px; background: #fff; border: 5px solid #bdc3c7; border-radius: 50%; position: absolute; left: 0; top: 50%; transform: translate(-50%, -50%); display: flex; justify-content: center; align-items: center; transition: transform 0.3s ease; background-image: linear-gradient(0deg, transparent 49%, #eee 49%, #eee 51%, transparent 51%), linear-gradient(90deg, transparent 49%, #eee 49%, #eee 51%, transparent 51%); }
+        .needle { width: 14px; height: 100px; position: relative; transition: transform 0.6s cubic-bezier(0.4, 1.5, 0.6, 1); filter: drop-shadow(1px 1px 2px rgba(0,0,0,0.3)); }
+        .needle-n { position: absolute; top: 0; border-left: 7px solid transparent; border-right: 7px solid transparent; border-bottom: 50px solid #e74c3c; }
+        .needle-s { position: absolute; bottom: 0; border-left: 7px solid transparent; border-right: 7px solid transparent; border-top: 50px solid #2c3e50; }
+        .compass-mark { position: absolute; font-size: 10px; color: #999; font-weight: bold; }
+        .battery-container { position: absolute; right: -25px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; align-items: center; z-index: 5; }
+        .battery-body { width: 50px; height: 100px; background: linear-gradient(135deg, #34495e 0%, #5d6d7e 100%); border: 2px solid #fff; border-radius: 4px; box-shadow: 4px 4px 10px rgba(0,0,0,0.2); display: flex; flex-direction: column; justify-content: space-between; align-items: center; padding: 5px 0; }
+        .battery-cap { width: 20px; height: 10px; background: #95a5a6; border: 1px solid #7f8c8d; }
+        .bat-text { font-size: 24px; font-weight: 900; line-height: 1; }
+        .text-plus { color: #ff5252; text-shadow: 0 0 5px rgba(255, 82, 82, 0.6); }
+        .text-minus { color: #448aff; text-shadow: 0 0 5px rgba(68, 138, 255, 0.6); }
+        .mode-wire-top .active-wire { z-index: 20; } .mode-wire-top .compass { z-index: 10; filter: brightness(0.95); }
+        .mode-wire-bottom .active-wire { z-index: 10; opacity: 0.6; } .mode-wire-bottom .compass { z-index: 20; box-shadow: 0 15px 30px rgba(0,0,0,0.25); }
+        .controls { margin-top: 25px; display: flex; gap: 20px; }
+        .control-group { text-align: center; }
+        .btn { padding: 10px 20px; border: none; border-radius: 8px; font-size: 1rem; cursor: pointer; color: white; transition: transform 0.1s; }
+        .btn:active { transform: scale(0.95); }
+        .btn-blue { background: #3498db; }
+        .btn-green { background: #27ae60; }
+        .status-text { margin-top: 8px; font-size: 0.9rem; font-weight: bold; color: #555; }
+    </style>
+</head>
+<body>
+    
+	<div class="header-container">
+	    <img src="logo.jpg" alt="晟自然輔助系統" class="title-logo">
+		<h2>晟自然輔助系統　電流磁效應造成磁針偏轉</h2>
+	</div>
+	
+    <div class="subtitle">討論：導線與磁針的位置關係，以及電流方向，影響磁針偏轉方向</div>
+
+    <div class="simulation-container" id="simContainer">
+        
+        <div class="circuit-frame">
+		    
+			<div class="common-wire wire-black wire-top"></div>
+			<div class="common-wire wire-black wire-right"></div>
+			<div class="common-wire wire-black wire-bottom"></div>
+			
+			<div class="active-wire common-wire"></div>
+			
+			<div class="current-arrow" id="arrow">⬇</div>
+			
+			<div class="compass">
+			    <div class="compass-mark" style="top:5px">N</div>
+				<div class="compass-mark" style="bottom:5px">S</div>
+				<div class="compass-mark" style="left:5px">W</div>
+				<div class="compass-mark" style="right:5px">E</div>
+				<div class="needle" id="needle">
+				    <div class="needle-n"></div>
+					<div class="needle-s"></div>
+				</div>
+			</div>
+			
+			<div class="battery-container">
+			    <div class="battery-cap" id="capTop" style="border-radius: 3px 3px 0 0; margin-bottom: -1px;"></div>
+				<div class="battery-body">
+				    <span class="bat-text text-plus" id="signTop">+</span>
+					<div style="width:20px; height:2px; background:rgba(255,255,255,0.1)"></div>
+					<span class="bat-text text-minus" id="signBot">-</span>
+				</div>
+				<div class="battery-cap" id="capBot" style="border-radius: 0 0 3px 3px; margin-top: -1px; display:none;"></div>
+			</div>
+		</div>
+    </div>
+
+    <div class="controls">
+        <div class="control-group">
+            <button class="btn btn-blue" onclick="toggleCurrent()">切換電流</button>
+            <div class="status-text" id="txtCurrent">通過磁針的電流：向下</div>
+        </div>
+        <div class="control-group">
+            <button class="btn btn-green" onclick="togglePosition()">改變位置</button>
+            <div class="status-text" id="txtPos">導線：在上方</div>
+        </div>
+    </div>
+
+    <script>
+        // 狀態變數
+        let isDown = true;      // 電流是否向下 (左側導線)
+        let isWireTop = true;   // 導線是否在上方 (壓住磁針)
+
+        function update() {
+            const container = document.getElementById('simContainer');
+            const arrow = document.getElementById('arrow');
+            const needle = document.getElementById('needle');
+            
+            // 電池相關元素
+            const signTop = document.getElementById('signTop');
+            const signBot = document.getElementById('signBot');
+            const capTop = document.getElementById('capTop');
+            const capBot = document.getElementById('capBot');
+
+            // 文字
+            const txtCurrent = document.getElementById('txtCurrent');
+            const txtPos = document.getElementById('txtPos');
+			const wireLeft = document.querySelector('.active-wire');
+			const wireTop = document.querySelector('.wire-top');
+			const wireRight = document.querySelector('.wire-right');
+			const wireBottom = document.querySelector('.wire-bottom');
+			const allWires = [wireLeft, wireTop, wireRight, wireBottom];
+
+            // 1. 設定層級 (Z-Index 重疊邏輯)
+            // 透過切換 class 來一次改變導線與磁針的 z-index
+            if (isWireTop) {
+                container.classList.add('mode-wire-top');
+                container.classList.remove('mode-wire-bottom');
+                txtPos.innerText = "導線在磁針：上方";
+                txtPos.style.color = "#d35400";
+            } else {
+                container.classList.add('mode-wire-bottom');
+                container.classList.remove('mode-wire-top');
+                txtPos.innerText = "導線在磁針：下方";
+                txtPos.style.color = "#AE57A4";
+            }
+
+            // 2. 設定電流與電池 (修正物理顯示)
+            allWires.forEach(w => {
+			    w.classList.remove('flowing-up', 'flowing-down', 'flowing-left', 'flowing-right');
+            });
+			
+			if (isDown) {
+                // 左側導線電流向下 -> 代表電池上方是正極 (電流順時針流出)
+                signTop.innerText = "+"; signTop.className = "bat-text text-plus";
+                signBot.innerText = "-"; signBot.className = "bat-text text-minus";
+                
+                capTop.style.display = "block";
+                capBot.style.display = "none";
+                
+                arrow.innerText = "⬇";
+                txtCurrent.innerText = "通過磁針的電流：向下";
+				txtCurrent.style.color = "#d35400";
+				wireLeft.classList.add('flowing-down');  // 左：向下
+				wireTop.classList.add('flowing-left');  // 上：向左
+				wireRight.classList.add('flowing-up'); // 右：向上 (經過電池)
+				wireBottom.classList.add('flowing-right');// 下：向右
+				
+            } else {
+                // 左側導線電流向上 -> 代表電池下方是正極 (電流逆時針流出)
+                signTop.innerText = "-"; signTop.className = "bat-text text-minus";
+                signBot.innerText = "+"; signBot.className = "bat-text text-plus";
+                
+                capTop.style.display = "none";
+                capBot.style.display = "block";
+
+                arrow.innerText = "⬆";
+                txtCurrent.innerText = "通過磁針的電流：向上";
+				txtCurrent.style.color = "#AE57A4";
+				wireLeft.classList.add('flowing-up');    // 左：向上
+				wireTop.classList.add('flowing-right');   // 上：向右
+				wireRight.classList.add('flowing-down');   // 右：向下
+				wireBottom.classList.add('flowing-left');// 下：向左
+            }
+
+            // 3. 計算物理角度 (安培右手定則)
+            // 電流向下(Down) + 導線在上(Top) = N極向西 (-45度, 逆時針)
+            // 電流向下(Down) + 導線在下(Bottom) = N極向東 (+45度, 順時針)
+            // 電流向上(Up) 則方向相反
+            
+            let angle = 0;
+            if (isDown) {
+                angle = isWireTop ? 45 : -45;
+            } else {
+                angle = isWireTop ? -45 : 45;
+            }
+            needle.style.transform = `rotate(${angle}deg)`;
+        }
+
+        function toggleCurrent() { isDown = !isDown; update(); }
+        function togglePosition() { isWireTop = !isWireTop; update(); }
+
+        // 啟動
+        window.onload = update;
+    </script>
+</body>
+</html>
