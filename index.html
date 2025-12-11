@@ -52,11 +52,20 @@
 			font-size: 2rem;
         }
 
+		/* 電腦版預設：把這個換行藏起來 */
+		.mobile-break {
+			display: none;
+		}
+
         /* 手機版微調：如果螢幕真的很小，LOGO稍微縮小 */
         @media (max-width: 600px) {
             .title-logo { height: 40px; }
             h2 { font-size: 1.5rem; }
 			.header-container { gap: 10px; }
+			/* 手機版：讓換行標籤「現身」 */
+			.mobile-break {
+				display: inline;
+			}
         }
 
         h2 { margin-bottom: 5px; color: #2c3e50; }
@@ -173,7 +182,7 @@
     
 	<div class="header-container">
 	    <img src="logo.jpg" alt="晟自然輔助系統" class="title-logo">
-		<h2>晟自然輔助系統　電流磁效應造成磁針偏轉</h2>
+		<h2>晟自然輔助系統　<br class="mobile-break">電流磁效應影響磁針偏轉</h2>
 	</div>
 	
     <div class="subtitle">討論：導線與磁針的位置關係，以及電流方向，影響磁針偏轉方向</div>
@@ -322,4 +331,5 @@
         window.onload = update;
     </script>
 </body>
+
 </html>
