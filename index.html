@@ -6,83 +6,94 @@
     <title>晟自然輔助系統　電流磁效應造成磁針偏轉</title>
     <style>
         :root {
+            /* 模擬專用變數 */
             --wire-red: #e74c3c;
-            --wire-dark: #444; /* 黑色導線的基底色 */
-            --bg-color: #f4f6f9;
+            --wire-dark: #444; 
             --panel-color: #ffffff;
+            /* 系統標準色 (來自 Index) */
+            --bg-color: #f0f4f8; 
         }
 
+        /* --- 1. 背景鎖定技術 (源自 Index) --- */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-			background-image: url('page.jpg'); /* 這裡換成你的背景圖檔名 */
-			background-size: cover;          /* 讓圖片充滿整個畫面 */
-			background-position: center;     /* 圖片置中 */
-			background-repeat: no-repeat;    /* 不要重複排列 */
-			background-attachment: fixed;    /* 捲動時背景固定不動 */
-            background-color: rgba(255, 255, 255, 0.8);
-            display: flex; flex-direction: column; align-items: center;
-            margin: 0; padding: 20px; color: #333;
-			min-height: 100vh;
-        }
-		
-		/* Logo 的樣式設定 */
-		.header-container {
-            display: flex;             /* 彈性排版模式 */
-            align-items: center;       /* 垂直置中對齊 */
-            justify-content: center;   /* 水平置中對齊 */
-            gap: 15px;                 /* 圖片跟文字中間的距離 */
-            margin-top: 20px;          /* 距離頂部的距離 */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px;
+            color: #333;
+            margin: 0;
+            overflow-x: hidden;
+            min-height: 100vh;
+            position: relative; /* 建立定位基準 */
         }
 
-        /* LOGO 的設定 */
-        .title-logo {
-            height: 60px;              /* 設定高度，讓它不要太大 */
-            width: auto;               /* 寬度自動調整，保持比例 */
-			filter: drop-shadow(2px 2px 2px rgba(0,0,0,0.2)); /* 加一點陰影更有質感 */
-            /* 如果你的 LOGO 有白底，可以加這行讓它變圓角 (選用) */
-            /* border-radius: 10px; */ 
+        body::before {
+            content: "";
+            position: fixed; /* 強制固定背景，不隨內容滾動 */
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%;
+            background-image: url('page.jpg'); 
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            z-index: -1; /* 置於內容最底層 */
         }
 
-        /* 調整 H2 標題，把原本的邊距拿掉，讓對齊更準 */
-        h2 {
-            margin: 0;                 /* 歸零，由容器控制距離 */
-            color: #2c3e50;
-            text-shadow: 1px 1px 2px white;
-            line-height: 1;            /* 讓行高緊湊一點 */
-			font-size: 2rem;
+        /* --- 2. 標題區塊標準化 (源自 Index) --- */
+        .header-container { 
+            display: flex; align-items: center; justify-content: center;   
+            gap: 10px; margin-top: 15px; margin-bottom: 10px;
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 8px 20px; border-radius: 50px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            max-width: 600px; width: 95%; 
+            box-sizing: border-box;
+        }
+        .title-logo { height: 36px; width: auto; }
+        h1 { margin: 0; color: #2c3e50; font-size: 1.2rem; text-align: center; white-space: nowrap; }
+        p.subtitle { color: #7f8c8d; margin-bottom: 15px; font-size: 0.9rem; text-align: center;}
+
+        /* --- 3. 外部連結按鈕 (源自 Index) --- */
+        .external-link-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px; 
+            text-decoration: none;
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: #fff;
+            padding: 6px 18px; 
+            font-size: 0.9rem; 
+            border-radius: 50px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            box-shadow: 0 3px 8px rgba(52, 152, 219, 0.4);
+            transition: all 0.2s ease;
+            cursor: pointer;
+            border: 2px solid rgba(255,255,255,0.2);
+        }
+        .external-link-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 12px rgba(52, 152, 219, 0.6);
+            background: linear-gradient(135deg, #2980b9 0%, #2c3e50 100%);
+        }
+        .external-link-btn:active {
+            transform: scale(0.98);
         }
 
-		/* 電腦版預設：把這個換行藏起來 */
-		.mobile-break {
-			display: none;
-		}
-
-        /* 手機版微調：如果螢幕真的很小，LOGO稍微縮小 */
-        @media (max-width: 600px) {
-            .title-logo { height: 40px; }
-            h2 { font-size: 1.5rem; }
-			.header-container { gap: 10px; }
-			/* 手機版：讓換行標籤「現身」 */
-			.mobile-break {
-				display: inline;
-			}
-        }
-
-        h2 { margin-bottom: 5px; color: #2c3e50; }
-        .subtitle { font-size: 0.9em; color: #7f8c8d; margin-bottom: 30px; }
-
+        /* --- 4. 模擬器特定樣式 (保留原案不更動) --- */
         /* --- 關鍵動畫定義 --- */
-        /* 上下流動 */
         @keyframes flowDown { from { background-position: 0 0; } to { background-position: 0 40px; } }
         @keyframes flowUp { from { background-position: 0 0; } to { background-position: 0 -40px; } }
-        /* 左右流動 (新增) */
         @keyframes flowRight { from { background-position: 0 0; } to { background-position: 40px 0; } }
         @keyframes flowLeft { from { background-position: 0 0; } to { background-position: -40px 0; } }
 
-        /* 增強版箭頭呼吸動畫 (加入發光與更大幅度的縮放) */
         @keyframes pulseArrowStrong {
             0% { transform: translateY(-50%) scale(1); opacity: 1; filter: drop-shadow(0 0 0px rgba(243, 156, 18, 0)); }
-            50% { transform: translateY(-50%) scale(1.4); opacity: 0.7; filter: drop-shadow(0 0 15px rgba(243, 156, 18, 0.9)); } /* 變大且發光 */
+            50% { transform: translateY(-50%) scale(1.4); opacity: 0.7; filter: drop-shadow(0 0 15px rgba(243, 156, 18, 0.9)); }
             100% { transform: translateY(-50%) scale(1); opacity: 1; filter: drop-shadow(0 0 0px rgba(243, 156, 18, 0)); }
         }
 
@@ -91,71 +102,57 @@
             background: var(--panel-color); border-radius: 20px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.1);
             display: flex; justify-content: center; align-items: center; overflow: visible;
+            margin-bottom: 20px; /* 增加與控制區的距離 */
         }
 
         .circuit-frame {
             position: relative; width: 180px; height: 280px;
-            /* 移除原本的 border 設定 */
-            /* border: 6px solid #444; border-radius: 15px; border-left: none; */
             box-sizing: border-box;
         }
 
-        /* --- 導線共用設定 (核心) --- */
         .common-wire {
             position: absolute;
             border-radius: 4px;
             box-shadow: 1px 1px 3px rgba(0,0,0,0.4);
-            /* 共用的流動紋理層 (最上層) */
             background-image: linear-gradient(
                 -45deg,
                 rgba(255,255,255,0.25) 25%, transparent 25%,
                 transparent 50%, rgba(255,255,255,0.25) 50%,
                 rgba(255,255,255,0.25) 75%, transparent 75%, transparent
             );
-            background-size: 20px 20px, 100% 100%; /* 紋理大小, 底層漸層大小 */
+            background-size: 20px 20px, 100% 100%;
             transition: all 0.3s ease;
         }
 
-        /* 紅色導線特定樣式 (左側) */
         .active-wire {
             left: -3px; top: -6px; bottom: -6px; width: 8px;
-            /* 疊加紅色 3D 漸層在紋理層之下 */
             background-image: linear-gradient(-45deg, rgba(255,255,255,0.25) 25%, transparent 25%, transparent 50%, rgba(255,255,255,0.25) 50%, rgba(255,255,255,0.25) 75%, transparent 75%, transparent),
                               linear-gradient(90deg, #a93226, var(--wire-red) 40%, #ec7063 60%, #a93226);
         }
 
-        /* 黑色導線特定樣式 */
         .wire-black {
-            /* 疊加黑色/深灰色 3D 漸層 */
             background-image: linear-gradient(-45deg, rgba(255,255,255,0.25) 25%, transparent 25%, transparent 50%, rgba(255,255,255,0.25) 50%, rgba(255,255,255,0.25) 75%, transparent 75%, transparent),
                               linear-gradient(90deg, #2c3e50, #5d6d7e 40%, #85929e 60%, #2c3e50);
-            z-index: 1; /* 比電池低 */
+            z-index: 1;
         }
 
-        /* 定位三條黑線 */
         .wire-top { top: -6px; left: -3px; right: -3px; height: 8px; background-image: linear-gradient(-45deg, rgba(255,255,255,0.25) 25%, transparent 25%, transparent 50%, rgba(255,255,255,0.25) 50%, rgba(255,255,255,0.25) 75%, transparent 75%, transparent), linear-gradient(0deg, #2c3e50, #5d6d7e 40%, #85929e 60%, #2c3e50); }
         .wire-right { right: -3px; top: -6px; bottom: -6px; width: 8px; }
         .wire-bottom { bottom: -6px; left: -3px; right: -3px; height: 8px; background-image: linear-gradient(-45deg, rgba(255,255,255,0.25) 25%, transparent 25%, transparent 50%, rgba(255,255,255,0.25) 50%, rgba(255,255,255,0.25) 75%, transparent 75%, transparent), linear-gradient(0deg, #2c3e50, #5d6d7e 40%, #85929e 60%, #2c3e50);}
 
 
-        /* 動畫 Class 用 */
         .flowing-down  { animation: flowDown 1s linear infinite; }
         .flowing-up    { animation: flowUp 1s linear infinite; }
         .flowing-right { animation: flowRight 1s linear infinite; }
         .flowing-left  { animation: flowLeft 1s linear infinite; }
 
-        /* 電流箭頭 (左側) - 套用增強版動畫 */
         .current-arrow {
             position: absolute; left: 15px; top: 50%;
-            /* transform 在動畫裡定義了 */
             font-size: 32px; color: #f39c12; font-weight: bold; text-shadow: 1px 1px 0 #fff;
             z-index: 50; pointer-events: none;
-            /* 使用新的強力動畫，速度稍微加快 */
             animation: pulseArrowStrong 1.2s ease-in-out infinite;
         }
 
-        /* ... (以下的指北針、電池、控制面板 CSS 保持原本的樣式，為了節省篇幅這裡省略，請保留你原本的代碼) ... */
-        /* --- 請保留原本的 .compass, .needle, .battery-container 等相關樣式 --- */
         .compass { width: 130px; height: 130px; background: #fff; border: 5px solid #bdc3c7; border-radius: 50%; position: absolute; left: 0; top: 50%; transform: translate(-50%, -50%); display: flex; justify-content: center; align-items: center; transition: transform 0.3s ease; background-image: linear-gradient(0deg, transparent 49%, #eee 49%, #eee 51%, transparent 51%), linear-gradient(90deg, transparent 49%, #eee 49%, #eee 51%, transparent 51%); }
         .needle { width: 14px; height: 100px; position: relative; transition: transform 0.6s cubic-bezier(0.4, 1.5, 0.6, 1); filter: drop-shadow(1px 1px 2px rgba(0,0,0,0.3)); }
         .needle-n { position: absolute; top: 0; border-left: 7px solid transparent; border-right: 7px solid transparent; border-bottom: 50px solid #e74c3c; }
@@ -169,23 +166,36 @@
         .text-minus { color: #448aff; text-shadow: 0 0 5px rgba(68, 138, 255, 0.6); }
         .mode-wire-top .active-wire { z-index: 20; } .mode-wire-top .compass { z-index: 10; filter: brightness(0.95); }
         .mode-wire-bottom .active-wire { z-index: 10; opacity: 0.6; } .mode-wire-bottom .compass { z-index: 20; box-shadow: 0 15px 30px rgba(0,0,0,0.25); }
-        .controls { margin-top: 25px; display: flex; gap: 20px; }
+        
+        .controls { margin-top: 25px; display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; }
         .control-group { text-align: center; }
         .btn { padding: 10px 20px; border: none; border-radius: 8px; font-size: 1rem; cursor: pointer; color: white; transition: transform 0.1s; }
         .btn:active { transform: scale(0.95); }
         .btn-blue { background: #3498db; }
         .btn-green { background: #27ae60; }
         .status-text { margin-top: 8px; font-size: 0.9rem; font-weight: bold; color: #555; }
+
+        /* 手機版微調 */
+        @media (max-width: 600px) {
+            h1 { font-size: 1.1rem; }
+            .title-logo { height: 28px; }
+            .simulation-container { transform: scale(0.9); margin-bottom: 10px; }
+            .controls { gap: 10px; padding: 5px; }
+        }
     </style>
 </head>
 <body>
     
-	<div class="header-container">
-	    <img src="logo.jpg" alt="晟自然輔助系統" class="title-logo">
-		<h2>晟自然輔助系統　<br class="mobile-break">電流磁效應影響磁針偏轉</h2>
+    <div class="header-container">
+	    <img src="logo.jpg" alt="Logo" class="title-logo" onerror="this.style.display='none'">
+		<h1>晟自然輔助系統　電流磁效應造成磁針偏轉</h1>
 	</div>
 	
-    <div class="subtitle">討論：導線與磁針的位置關係，以及電流方向，影響磁針偏轉方向</div>
+    <a href="https://line.me/ti/g2/TTCqPpZP6lQqX1z_AUDPNm4977Dvylew3O7oBg?utm_source=invitation&utm_medium=link_copy&utm_campaign=default" target="_blank" class="external-link-btn">
+        <span>👉</span> 加 LINE 免費提問
+    </a>
+
+    <p class="subtitle">導線與磁針的位置關係以及電流方向，如何影響磁針偏轉方向</p>
 
     <div class="simulation-container" id="simContainer">
         
@@ -331,5 +341,4 @@
         window.onload = update;
     </script>
 </body>
-
 </html>
